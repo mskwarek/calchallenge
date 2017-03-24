@@ -1,3 +1,10 @@
 from django.test import TestCase
+#from myapp.models import Animal
 
-# Create your tests here.
+
+class CalendarTestCase(TestCase):
+    def setUp(self):
+        return
+
+    def test_animals_can_speak(self):
+        return
