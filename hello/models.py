@@ -1,4 +1,5 @@
 from django.db import models
+import datetime
 
 
 class Calendar(models.Model):
@@ -14,3 +15,6 @@ class Meeting(models.Model):
     participant_surname = models.CharField(max_length=512)
     creation_date = models.DateTimeField()
     color = models.CharField(max_length=128, null=True)
+
+    def get_duration(self):
+        return (self.end_date-self.start_date).total_days()
