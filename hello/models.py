@@ -17,4 +17,5 @@ class Meeting(models.Model):
     color = models.CharField(max_length=128, null=True)
 
     def get_duration(self):
-        return (self.end_date-self.start_date).total_days()
+        return (self.end_date-self.start_date).days
+

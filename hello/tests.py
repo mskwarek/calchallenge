@@ -42,7 +42,7 @@ class CalendarTestCase(TestCase):
         mtg = Meeting.objects.latest('creation_date')
         x = (timezone.now() - datetime(1970, 1, 1, 0, 0, 0, 0, tzinfo=timezone.utc)).total_seconds()
         y = (mtg.creation_date - datetime(1970, 1, 1, 0, 0, 0, 0, tzinfo=timezone.utc)).total_seconds()
-        self.assertGreater(y, x)
+        self.assertGreater(x, y)
 
     def test_delete_meeting(self):
         meeting = self.get_test_meeting()
@@ -52,19 +52,74 @@ class CalendarTestCase(TestCase):
         self.assertIsNone(mtg)
 
     def test_edit_meeting_name(self):
-        raise Exception
+        meeting = self.get_test_meeting()
+        CalendarApiViews.add_new_meeting(meeting)
+        old = CalendarApiViews.get_meeting_from_db(meeting)
+        meeting = CalendarApiViews.get_meeting_from_db(meeting)
+        meeting.name = "updated name"
+        CalendarApiViews.update(meeting)
+        new = CalendarApiViews.get_meeting_from_db(meeting)
+        self.assertEqual(old.name, "test meeting")
+        self.assertEqual(new.name, "updated name")
+        self.assertEqual(old.id, new.id)
 
     def test_edit_meeting_start_date(self):
-        raise Exception
+        meeting = self.get_test_meeting()
+        CalendarApiViews.add_new_meeting(meeting)
+        old = CalendarApiViews.get_meeting_from_db(meeting)
+        meeting = CalendarApiViews.get_meeting_from_db(meeting)
+        new_start_date = timezone.now()
+        meeting.start_date = new_start_date
+        CalendarApiViews.update(meeting)
+        new = CalendarApiViews.get_meeting_from_db(meeting)
+        self.assertNotEqual(old.start_date, new.start_date)
+        self.assertEqual(old.id, new.id)
 
     def test_edit_meeting_place(self):
-        raise Exception
+        meeting = self.get_test_meeting()
+        CalendarApiViews.add_new_meeting(meeting)
+        old = CalendarApiViews.get_meeting_from_db(meeting)
+        meeting = CalendarApiViews.get_meeting_from_db(meeting)
+        meeting.place = "updated place"
+        CalendarApiViews.update(meeting)
+        new = CalendarApiViews.get_meeting_from_db(meeting)
+        self.assertEqual(old.place, "test place")
+        self.assertEqual(new.place, "updated place")
+        self.assertEqual(old.id, new.id)
 
     def test_edit_meeting_color(self):
-        raise Exception
+        meeting = self.get_test_meeting()
+        CalendarApiViews.add_new_meeting(meeting)
+        old = CalendarApiViews.get_meeting_from_db(meeting)
+        meeting = CalendarApiViews.get_meeting_from_db(meeting)
+        meeting.color = "color"
+        CalendarApiViews.update(meeting)
+        new = CalendarApiViews.get_meeting_from_db(meeting)
+        self.assertEqual(old.color, None)
+        self.assertEqual(new.color, "color")
+        self.assertEqual(old.id, new.id)
 
     def test_edit_meeting_participant(self):
-        raise Exception
+        meeting = self.get_test_meeting()
+        CalendarApiViews.add_new_meeting(meeting)
+        old = CalendarApiViews.get_meeting_from_db(meeting)
+        meeting = CalendarApiViews.get_meeting_from_db(meeting)
+        meeting.participant_surname = "abacka"
+        CalendarApiViews.update(meeting)
+        new = CalendarApiViews.get_meeting_from_db(meeting)
+        self.assertEqual(old.participant_surname, "abacki")
+        self.assertEqual(new.participant_surname, "abacka")
+        self.assertEqual(old.id, new.id)
 
     def test_get_duration(self):
-        raise Exception
+        meeting = self.get_test_meeting()
+        CalendarApiViews.add_new_meeting(meeting)
+        self.assertEqual(31, meeting.get_duration())
+
+    def test_get_duration_february(self):
+        date_to_write = datetime(2017, 1, 31, 12, 0, 0, 0, tzinfo=timezone.utc)
+        meeting = Meeting(calendar=self.cal, name="february meeting", place="warsaw",
+                          start_date=date_to_write,
+                          participant_surname="babacki")
+        CalendarApiViews.add_new_meeting(meeting)
+        self.assertEqual(28, meeting.get_duration())
